@@ -5,7 +5,7 @@ project (KHRSegwayPC)
 
 find_package(OpenCV REQUIRED)
 
-add_definitions("-Wall -std=c++11 -lpthread")
+add_definitions("-Wall -std=c++11 -I/usr/local/include/aruco")
 
 add_executable (KHRSegwayPC 
   main.cpp
@@ -19,4 +19,5 @@ target_link_libraries(
   KHRSegwayPC
   pthread
   ${OpenCV_LIBS}
+  aruco
 )

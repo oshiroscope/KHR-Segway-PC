@@ -12,6 +12,7 @@
 #include <fcntl.h>
 
 #include <opencv2/opencv.hpp>
+#include <aruco.h>
 
 #include "config.hpp"
 #include "serial_port.hpp"
@@ -23,6 +24,31 @@ char key;
 
 int main()
 {
+    cv::Mat inputImage = cv::imread("./image-test.png");
+
+    aruco::CameraParameters params;
+    params.readFromXMLFile("./intrinsics.yml");
+    params.resize(inputImage.size());
+    
+    aruco::MarkerDetector detector;
+    std::vector<aruco::Marker> markers;
+    const float markerSize = 0.04f;
+    detector.detect(inputImage, markers, params, markerSize);
+
+    auto outputImage = inputImage.clone();
+    for(auto&& marker : markers){
+	std::cout << marker << std::endl;
+	marker.draw(outputImage, cv::Scalar(0, 0, 255), 2);
+	aruco::CvDrawingUtils::draw3dCube(outputImage, marker, params);
+    }
+
+    cv::namedWindow("input");
+    cv::imshow("input", inputImage);
+    cv::namedWindow("output");
+    cv::imshow("output", outputImage);
+    cv::waitKey(0);
+    return 0;
+
     cv::VideoCapture cap(1);
     cap.set(CV_CAP_PROP_FRAME_WIDTH, 640);
     cap.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
@@ -32,16 +58,15 @@ int main()
 	return -1;
     }
     cv::namedWindow("Capture", CV_WINDOW_AUTOSIZE | CV_WINDOW_FREERATIO);
-    //std::cout << "hello";
+
     while(1){
 	cv::Mat frame;
 	cap >> frame;
 	cv::imshow("Capture", frame);
 	if(cv::waitKey(30) >= 0)
         {
-            cv::imwrite("frame.png",  frame);
             break;
-        }	
+        }
     }
 	
     set_term();
