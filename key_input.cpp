@@ -57,8 +57,8 @@ void set_term(){
     }
 }
 
-bool get_key(char *c){
-    if(read(0, c, 1) == 1 )
+bool get_key(char &c){
+    if(read(0, &c, 1) == 1 )
     {
 	if( errno != EAGAIN )
 	{
@@ -69,7 +69,7 @@ bool get_key(char *c){
     }
     else
     {
-	*c = 0x00;
+	c = 0x00;
 	return false;
     }
 }

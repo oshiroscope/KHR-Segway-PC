@@ -11,6 +11,8 @@ add_executable (KHRSegwayPC
   main.cpp
   serial_port.cpp
   command_gen.cpp
+  key_input.cpp
+  motion.cpp
 )
 
 target_link_libraries(

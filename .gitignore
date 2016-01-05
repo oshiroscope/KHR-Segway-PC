@@ -5,5 +5,5 @@ Makefile
 cmake_install.cmake
 KHRSegwayPC
 *~
-#*
-*#
+*#*
+
