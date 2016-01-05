@@ -23,6 +23,27 @@ char key;
 
 int main()
 {
+    cv::VideoCapture cap(1);
+    cap.set(CV_CAP_PROP_FRAME_WIDTH, 640);
+    cap.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
+
+    if(!cap.isOpened())
+    {
+	return -1;
+    }
+    cv::namedWindow("Capture", CV_WINDOW_AUTOSIZE | CV_WINDOW_FREERATIO);
+    //std::cout << "hello";
+    while(1){
+	cv::Mat frame;
+	cap >> frame;
+	cv::imshow("Capture", frame);
+	if(cv::waitKey(30) >= 0)
+        {
+            cv::imwrite("frame.png",  frame);
+            break;
+        }	
+    }
+	
     set_term();
 
     SerialPort sensor_port(SENSOR_SERIAL_PORT);
