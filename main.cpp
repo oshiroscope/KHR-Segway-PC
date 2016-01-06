@@ -19,49 +19,15 @@
 #include "command_gen.hpp"
 #include "key_input.hpp"
 #include "motion.hpp"
+#include "odometry.hpp"
 
 char key;
 
 int main()
 {
-    aruco::CameraParameters params;
-    params.readFromXMLFile("./intrinsics.yml");
-    //params.resize(inputImage.size());
-    
-    aruco::MarkerDetector detector;
-    std::vector<aruco::Marker> markers;
-    const float markerSize = 0.04f;
+    Odometry odometry;
+    odometry.Start();
 
-    cv::VideoCapture cap(1);
-    cap.set(CV_CAP_PROP_FRAME_WIDTH, 640);
-    cap.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
-
-    if(!cap.isOpened())
-    {
-	return -1;
-    }
-    cv::namedWindow("Capture", CV_WINDOW_AUTOSIZE | CV_WINDOW_FREERATIO);
-
-    while(1){
-	cv::Mat frame;
-	cap >> frame;
-
-	detector.detect(frame, markers, params, markerSize);
-
-	auto outputImage = frame.clone();
-	for(auto&& marker : markers){
-	    std::cout << marker << std::endl;
-	    marker.draw(outputImage, cv::Scalar(0, 0, 255), 2);
-	    aruco::CvDrawingUtils::draw3dCube(outputImage, marker, params);
-	}
-	cv::imshow("Capture", outputImage);
-	if(cv::waitKey(30) >= 0)
-        {
-            break;
-        }
-    }
-    return 0;
-    
     set_term();
 
     SerialPort sensor_port(SENSOR_SERIAL_PORT);
@@ -84,7 +50,7 @@ int main()
     while(1){
 	sensor_port.Read(read_buf, 7);
 	float theta = *((float *)read_buf);
-	std::cout << std::fixed << std::setprecision(10) << theta << "\t";
+	//std::cout << std::fixed << std::setprecision(10) << theta << "\t";
 
 	old_c = c;
 	get_key(c);
@@ -114,7 +80,7 @@ int main()
 	    motion.Right(dest);
 	    break;
 	default :
-	    std::cout << "none";
+	    //std::cout << "none";
 	    motion.None(dest);
 	    motion.Stab(dest, theta);
 	    break;
@@ -122,8 +88,8 @@ int main()
 
 	motion.Move(dest);
 
-	std::cout << "\t" << key;
-	std::cout << std::endl;
+	//std::cout << "\t" << key;
+	//std::cout << std::endl;
     }
 }
 
