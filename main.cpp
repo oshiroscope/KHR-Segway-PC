@@ -31,7 +31,7 @@ int main()
     set_term();
 
     SerialPort sensor_port(SENSOR_SERIAL_PORT);
-    SerialPort khr_port(KHR_SERIAL_PORT);    
+    SerialPort khr_port(KHR_SERIAL_PORT);
 
     Motion motion(khr_port);
     std::map<int, int> dest;
@@ -39,10 +39,10 @@ int main()
     motion.Move(dest);
     sleep(1);
 
-    motion.Clear(dest);
-    motion.Grub(dest);
-    motion.Move(dest);
-    sleep(1);
+    //motion.Clear(dest);
+    //motion.Grub(dest);
+    //motion.Move(dest);
+    //sleep(1);
 
     char c, old_c, state;
     unsigned char read_buf[255];
@@ -50,7 +50,7 @@ int main()
     while(1){
 	sensor_port.Read(read_buf, 7);
 	float theta = *((float *)read_buf);
-	//std::cout << std::fixed << std::setprecision(10) << theta << "\t";
+	std::cout << std::fixed << std::setprecision(10) << theta << "\t";
 
 	old_c = c;
 	get_key(c);
@@ -64,30 +64,34 @@ int main()
 	switch(state)
 	{
 	case 'w':
-	    std::cout << "forward";
+	    //std::cout << "forward";
 	    motion.Forward(dest);
 	    break;
 	case 'a':
-	    std::cout << "left";
+	    //std::cout << "left";
 	    motion.Left(dest);
 	    break;
 	case 's':
-	    std::cout << "backward";
+	    //std::cout << "backward";
 	    motion.Backward(dest);
 	    break;
 	case 'd':
-	    std::cout << "right";
+	    //std::cout << "right";
 	    motion.Right(dest);
 	    break;
 	default :
 	    //std::cout << "none";
 	    motion.None(dest);
-	    motion.Stab(dest, theta);
+	    /*if(odometry.isSet())
+		motion.Stab(dest, theta);
+	    else 
+		motion.Stab(dest, theta, odometry.getVZ());
+	    */
+	    motion.Stab(dest, theta, odometry.getVZ(), odometry.getZ() - 0.4);
 	    break;
 	}
 
 	motion.Move(dest);
-
 	//std::cout << "\t" << key;
 	//std::cout << std::endl;
     }

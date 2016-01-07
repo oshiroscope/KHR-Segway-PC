@@ -19,10 +19,13 @@ public:
     void Backward(std::map<int, int> &dest);
     void None(std::map<int, int> &dest);
     void Stab(std::map<int, int> &dest, float theta);
+    void Stab(std::map<int, int> &dest, float theta, float v);
+    void Stab(std::map<int, int> &dest, float theta, float v, float x);
 
     void Clear(std::map<int, int> &dest);
 
 private:
     SerialPort m_khr_port;
 };
+
 
