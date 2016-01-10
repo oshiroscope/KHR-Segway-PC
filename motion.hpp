@@ -21,6 +21,7 @@ public:
     void Stab(std::map<int, int> &dest, float theta);
     void Stab(std::map<int, int> &dest, float theta, float v);
     void Stab(std::map<int, int> &dest, float theta, float v, float x);
+    void Stab(std::map<int, int> &dest, float theta, float omega, float v, float x);
 
     void Clear(std::map<int, int> &dest);
 

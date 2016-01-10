@@ -87,11 +87,21 @@ void Motion::Stab(std::map<int, int> &dest, float theta){
 void Motion::Stab(std::map<int, int> &dest, float theta, float v, float x){
     //dest[18] = (float)7500 + (theta - THETA_INIT) * (float)1500;
     //dest[19] = (float)7500 - (theta - THETA_INIT) * (float)1500;
-    dest[18] = (float)7500 + (theta - THETA_INIT) * (float)1200 - x * 150;
-    dest[19] = (float)7500 - (theta - THETA_INIT) * (float)1200 + x * 150;
-    std::cout << v * 150 << "\t" << x << std::endl;
+    dest[18] = (float)7500 + (theta - THETA_INIT) * (float)1000 - x * 150;
+    dest[19] = (float)7500 - (theta - THETA_INIT) * (float)1000 + x * 150;
+    //std::cout << v * 150 << "\t" << x << std::endl;
 }
 
+void Motion::Stab(std::map<int, int> &dest, float theta, float omega, float v, float x){
+    //dest[18] = (float)7500 + (theta - THETA_INIT) * (float)1500;
+    //dest[19] = (float)7500 - (theta - THETA_INIT) * (float)1500;
+    dest[18] = (float)7500 + (theta - THETA_INIT) * (float)1000 + omega * 50 - x * 20 - v * 30;
+    dest[19] = (float)7500 - (theta - THETA_INIT) * (float)1000 - omega * 50 + x * 20 + v * 30;
+    /*std::cout << (theta - THETA_INIT)*200 << "\t" 
+	      << omega * 100 << "\t" 
+	      << x * 300 << "\t" 
+	      << v * 100 << std::endl;*/
+}
 
 void Motion::Clear(std::map <int, int> &dest){
     dest.clear();

@@ -20,7 +20,7 @@ void Odometry::Start()
 	    
 	    aruco::MarkerDetector detector;
 	    std::vector<aruco::Marker> markers;
-	    const float markerSize = 0.04f;
+	    const float markerSize = 0.156f;
     
 	    cv::VideoCapture cap(1);
 	    cap.set(CV_CAP_PROP_FRAME_WIDTH, 640);

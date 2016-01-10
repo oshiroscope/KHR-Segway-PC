@@ -46,11 +46,25 @@ int main()
 
     char c, old_c, state;
     unsigned char read_buf[255];
+    
+    float theta, omega;
 
     while(1){
-	sensor_port.Read(read_buf, 7);
-	float theta = *((float *)read_buf);
-	std::cout << std::fixed << std::setprecision(10) << theta << "\t";
+	sensor_port.Read(read_buf, 9);
+	unsigned char sum = 0;
+	for(int i = 0; i < 8; i++){
+	    sum += read_buf[i];
+	}
+
+	if(sum != read_buf[8])
+	    std::cout << "checksum error" << std::endl;
+	else{
+	    theta = *((float *)read_buf);
+	    omega = *((float *)(read_buf + 4));
+	}
+	
+	/*std::cout << std::fixed << std::setprecision(10) << theta << "\t"
+	  << std::fixed << std::setprecision(10) << omega << "\t";*/
 
 	old_c = c;
 	get_key(c);
@@ -64,36 +78,37 @@ int main()
 	switch(state)
 	{
 	case 'w':
-	    //std::cout << "forward";
+	    std::cout << "forward";
 	    motion.Forward(dest);
 	    break;
 	case 'a':
-	    //std::cout << "left";
+	    std::cout << "left";
 	    motion.Left(dest);
 	    break;
 	case 's':
-	    //std::cout << "backward";
+	    std::cout << "backward";
 	    motion.Backward(dest);
 	    break;
 	case 'd':
-	    //std::cout << "right";
+	    std::cout << "right";
 	    motion.Right(dest);
 	    break;
 	default :
-	    //std::cout << "none";
+	    std::cout << "none";
 	    motion.None(dest);
 	    /*if(odometry.isSet())
 		motion.Stab(dest, theta);
 	    else 
 		motion.Stab(dest, theta, odometry.getVZ());
 	    */
-	    motion.Stab(dest, theta, odometry.getVZ(), odometry.getZ() - 0.4);
+	    motion.Stab(dest, theta, omega, odometry.getVZ(), odometry.getZ() - 0.4);
+	    //std::cout << odometry.getVZ() << std::endl;
 	    break;
 	}
 
 	motion.Move(dest);
 	//std::cout << "\t" << key;
-	//std::cout << std::endl;
+	std::cout << std::endl;
     }
 }
 
