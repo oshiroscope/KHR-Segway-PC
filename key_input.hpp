@@ -1,7 +1,15 @@
 #pragma once
 
-void set_term();
+#include <thread>
 
-bool get_key(char &c);
-
-void post_proc(int sig);
+class KeyInput{
+public:
+    KeyInput();
+    ~KeyInput();
+    void Start();
+    char GetKey();
+private:
+    std::thread m_th;
+    char m_c;
+    void SetTerm();
+};

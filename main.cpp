@@ -23,14 +23,18 @@
 
 char key;
 
+std::vector<char> key_buf;
+
 int main()
 {
     Odometry odometry;
     odometry.Start();
 
-    set_term();
+    KeyInput keyInput;
+    keyInput.Start();
+    //set_term();
 
-    SerialPort sensor_port(SENSOR_SERIAL_PORT);
+    //SerialPort sensor_port(SENSOR_SERIAL_PORT);
     SerialPort khr_port(KHR_SERIAL_PORT);
 
     Motion motion(khr_port);
@@ -39,10 +43,10 @@ int main()
     motion.Move(dest);
     sleep(1);
 
-    //motion.Clear(dest);
-    //motion.Grub(dest);
-    //motion.Move(dest);
-    //sleep(1);
+    motion.Clear(dest);
+    motion.Grub(dest);
+    motion.Move(dest);
+    sleep(1);
 
     char c, old_c, state;
     unsigned char read_buf[255];
@@ -50,7 +54,7 @@ int main()
     float theta, omega;
 
     while(1){
-	sensor_port.Read(read_buf, 9);
+	/*sensor_port.Read(read_buf, 9);
 	unsigned char sum = 0;
 	for(int i = 0; i < 8; i++){
 	    sum += read_buf[i];
@@ -61,54 +65,47 @@ int main()
 	else{
 	    theta = *((float *)read_buf);
 	    omega = *((float *)(read_buf + 4));
-	}
+	}*/
 	
-	/*std::cout << std::fixed << std::setprecision(10) << theta << "\t"
-	  << std::fixed << std::setprecision(10) << omega << "\t";*/
-
-	old_c = c;
-	get_key(c);
-
-	if(c == old_c){
-	    state = c;
-	}
+	std::cout << std::fixed << std::setprecision(10) << theta << "\t"
+	  << std::fixed << std::setprecision(10) << omega << "\t";
 
 	motion.Clear(dest);
 
-	switch(state)
+	switch(keyInput.GetKey())
 	{
 	case 'w':
 	    std::cout << "forward";
 	    motion.Forward(dest);
+	    motion.Move(dest, 20);
 	    break;
 	case 'a':
 	    std::cout << "left";
 	    motion.Left(dest);
+	    motion.Move(dest, 20);
 	    break;
 	case 's':
 	    std::cout << "backward";
 	    motion.Backward(dest);
+	    motion.Move(dest, 20);
 	    break;
 	case 'd':
 	    std::cout << "right";
 	    motion.Right(dest);
+	    motion.Move(dest, 20);
 	    break;
 	default :
 	    std::cout << "none";
 	    motion.None(dest);
-	    /*if(odometry.isSet())
-		motion.Stab(dest, theta);
-	    else 
-		motion.Stab(dest, theta, odometry.getVZ());
-	    */
-	    motion.Stab(dest, theta, omega, odometry.getVZ(), odometry.getZ() - 0.4);
-	    //std::cout << odometry.getVZ() << std::endl;
+	    //motion.Stab(dest, theta, omega);
+	    motion.Move(dest, 10);
 	    break;
 	}
 
-	motion.Move(dest);
+
 	//std::cout << "\t" << key;
 	std::cout << std::endl;
+	usleep(10000);	
     }
 }
 
