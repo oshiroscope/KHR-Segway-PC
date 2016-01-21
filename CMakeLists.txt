@@ -18,6 +18,7 @@ add_executable (KHRSegwayPC
   key_input.cpp
   motion.cpp
   odometry.cpp
+  monitor.cpp
 )
 
 target_link_libraries(
