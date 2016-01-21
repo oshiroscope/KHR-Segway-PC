@@ -4,12 +4,17 @@
 
 Odometry::Odometry()
 {
+    m_x = 0.0f;
+    m_y = 0.0f;
+    m_z = 0.0f;
 }
 
 Odometry::~Odometry()
 {
     m_th.join();
 }
+
+int sgn(float x){return x == 0 ? 0 : (x > 0 ? 1 : -1);}
 
 void Odometry::Start()
 {
@@ -53,7 +58,11 @@ void Odometry::Start()
 			x += marker.Tvec.at<float>(0,0);
 			y += marker.Tvec.at<float>(0,1);
 			z += marker.Tvec.at<float>(0,2);
-
+			m_marker_vec[marker.id] = {
+			    marker.Tvec.at<float>(0,0),
+			    marker.Tvec.at<float>(0,2),
+			    - marker.Rvec.at<float>(0,2) * sgn(marker.Rvec.at<float>(0,0))
+			};
 			marker.draw(outputImage, cv::Scalar(0, 0, 255), 2);
 			aruco::CvDrawingUtils::draw3dCube(outputImage, marker, params);
 		    }

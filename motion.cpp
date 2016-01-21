@@ -133,6 +133,23 @@ void Motion::Stab(std::map<int, int> &dest, float theta, float omega, float v, f
 	      << v * 100 << std::endl;*/
 }
 
+//
+int Rad2Servo(float angle){
+    return 7500 +  angle * 5333; // 135 deg = 4000 unit / 1rad = 5333
+}
+float Servo2Rad(int angle){
+    return (angle - 7500) / (float)5333;
+}
+
+void Motion::Head(std::map<int, int> &dest, float target_theta, float &camera_theta){
+    dest[0] =((Rad2Servo(-camera_theta) - target_theta * 50)) ;
+    if(dest[0] > 10000)
+	dest[0] = 10000;
+    if(dest[0] < 5000)
+	dest[0] = 5000;
+    camera_theta = -Servo2Rad(dest[0]);
+}
+
 void Motion::Clear(std::map <int, int> &dest){
     dest.clear();
 }

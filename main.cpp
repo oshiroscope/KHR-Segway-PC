@@ -3,16 +3,14 @@
 #include <map>
 #include <vector>
 #include <thread>
+#include <cmath>
+
 #include <unistd.h>
-#include <string.h>
-#include <stdio.h>
-#include <termios.h>
-#include <signal.h>
-#include <errno.h>
-#include <fcntl.h>
 
 #include <opencv2/opencv.hpp>
 #include <aruco.h>
+
+#include <GL/glut.h>
 
 #include "config.hpp"
 #include "serial_port.hpp"
@@ -20,6 +18,8 @@
 #include "key_input.hpp"
 #include "motion.hpp"
 #include "odometry.hpp"
+
+//#define DEBUG_PRINT
 
 char key;
 
@@ -48,64 +48,65 @@ int main()
     motion.Move(dest);
     sleep(1);
 
-    char c, old_c, state;
-    unsigned char read_buf[255];
     
-    float theta, omega;
+    float camera_theta = 0;
 
     while(1){
-	/*sensor_port.Read(read_buf, 9);
-	unsigned char sum = 0;
-	for(int i = 0; i < 8; i++){
-	    sum += read_buf[i];
-	}
+	auto map = odometry.getMap();
+	#ifdef DEBUG_PRINT
+	std::cout << map[20].x << "\t"
+		  << map[20].y << "\t"
+		  << map[20].theta << "\t"
+		  << atan2(-map[20].x, map[20].y) << "\t";
+	#endif
 
-	if(sum != read_buf[8])
-	    std::cout << "checksum error" << std::endl;
-	else{
-	    theta = *((float *)read_buf);
-	    omega = *((float *)(read_buf + 4));
-	}*/
-	
-	std::cout << std::fixed << std::setprecision(10) << theta << "\t"
-	  << std::fixed << std::setprecision(10) << omega << "\t";
+	float target_theta = atan2(-map[20].x, map[20].y);
 
 	motion.Clear(dest);
 
 	switch(keyInput.GetKey())
 	{
 	case 'w':
+#ifdef DEBUG_PRINT
 	    std::cout << "forward";
+#endif
 	    motion.Forward(dest);
-	    motion.Move(dest, 20);
 	    break;
 	case 'a':
+#ifdef DEBUG_PRINT
 	    std::cout << "left";
+#endif
 	    motion.Left(dest);
-	    motion.Move(dest, 20);
 	    break;
 	case 's':
+#ifdef DEBUG_PRINT
 	    std::cout << "backward";
+#endif
 	    motion.Backward(dest);
-	    motion.Move(dest, 20);
 	    break;
 	case 'd':
+#ifdef DEBUG_PRINT
 	    std::cout << "right";
+#endif
 	    motion.Right(dest);
-	    motion.Move(dest, 20);
 	    break;
 	default :
+#ifdef DEBUG_PRINT
 	    std::cout << "none";
+#endif
 	    motion.None(dest);
 	    //motion.Stab(dest, theta, omega);
-	    motion.Move(dest, 10);
 	    break;
 	}
 
-
-	//std::cout << "\t" << key;
+	if(target_theta > 0.1 || target_theta < -0.1)
+	    motion.Head(dest, target_theta, camera_theta);
+	motion.Move(dest, 40);
+	
+#ifdef DEBUG_PRINT
 	std::cout << std::endl;
-	usleep(10000);	
+#endif
+	usleep(30000);	
     }
 }
 

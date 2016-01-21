@@ -3,6 +3,26 @@
 #include <aruco.h>
 #include <thread>
 
+struct Vec3f{
+public:
+    float x;
+    float y;
+    float z;
+};
+
+struct Coord{
+public:
+    Vec3f transform;
+    Vec3f rotation;
+};
+
+struct Position{
+public:
+    float x;
+    float y;
+    float theta;
+};
+
 class Odometry{
 public :
     Odometry();
@@ -14,10 +34,12 @@ public :
     float getVX(){return m_vx;}
     float getVY(){return m_vy;}
     float getVZ(){return m_vz;}
+    std::map<int, Position> getMap(){return m_marker_vec;}
     bool isSet(){return m_is_set;}
 private :
     aruco::CameraParameters m_params;
     std::thread m_th;
+    std::map<int, Position> m_marker_vec;
     float m_x;
     float m_y;    
     float m_z;
