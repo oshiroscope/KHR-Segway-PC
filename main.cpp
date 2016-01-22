@@ -24,7 +24,9 @@ std::vector<char> key_buf;
 
 int main(int argc, char *argv[])
 {
-    Odometry odometry;
+    float camera_theta = 0;
+
+    Odometry odometry(&camera_theta);
     odometry.Start();
 
     KeyInput keyInput;
@@ -44,7 +46,7 @@ int main(int argc, char *argv[])
     sleep(1);
 
     std::map<int, Position> marker_map;
-    float camera_theta = 0;
+
     std::thread control_th = std::thread(
 	[&]{
 	    while(1){
@@ -56,8 +58,11 @@ int main(int argc, char *argv[])
 			  << atan2(-marker_map[20].x, marker_map[20].y) << "\t";
 #endif
 
-		float target_theta = atan2(-marker_map[20].x, marker_map[20].y);
-
+		float target_theta = atan2(-marker_map[20].x, marker_map[20].y) - camera_theta;
+		std::cout << atan2(-marker_map[20].x, marker_map[20].y) << "\t";
+		std::cout << camera_theta << "\t";
+		std::cout << target_theta << "\t";
+		std::cout << atan2(-marker_map[21].x, marker_map[21].y) << "\n";
 		motion.Clear(dest);
 
 		switch(keyInput.GetKey())
@@ -95,9 +100,9 @@ int main(int argc, char *argv[])
 		    break;
 		}
 
-		if(target_theta > 0.1 || target_theta < -0.1)
+		if((target_theta > 0.1 || target_theta < -0.1) && odometry.isSet())
 		    motion.Head(dest, target_theta, camera_theta);
-		motion.Move(dest, 40);
+		motion.Move(dest, 10);
 	
 #ifdef DEBUG_PRINT
 		std::cout << std::endl;

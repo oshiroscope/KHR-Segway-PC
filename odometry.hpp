@@ -25,7 +25,7 @@ public:
 
 class Odometry{
 public :
-    Odometry();
+    Odometry(float *camera_theta);
     ~Odometry();
     void Start();
     float getX(){return m_x;}
@@ -47,5 +47,5 @@ private :
     float m_vy;
     float m_vz;
     bool m_is_set;
-    
+    float *m_camera_theta;
 };

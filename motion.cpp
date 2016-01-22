@@ -2,6 +2,7 @@
 
 #include <map>
 #include <iostream>
+#include <cmath>
 
 #include "command_gen.hpp"
 
@@ -21,11 +22,12 @@ void Motion::Move(std::map<int, int> &dest, int frame)
 }
 
 void Motion::Init(std::map<int, int> &dest){
-    dest[2] = 7300;
+    dest[0] = 7500;
+    dest[2] = 8000; //7300;
     dest[3] = 7700;
-    dest[6] = 8000;
+    dest[6] = 7500; //8000;
     dest[7] = 7000;
-    dest[8] = 4700;
+    dest[8] = 6000; //4700;
     dest[9] = 10300;
 }
 
@@ -135,18 +137,18 @@ void Motion::Stab(std::map<int, int> &dest, float theta, float omega, float v, f
 
 //
 int Rad2Servo(float angle){
-    return 7500 +  angle * 5333; // 135 deg = 4000 unit / 1rad = 5333
+    return 7500 +  angle * 5333 / M_PI; // 135 deg = 4000 unit / 3.141592rad = 5333
 }
 float Servo2Rad(int angle){
-    return (angle - 7500) / (float)5333;
+    return (angle - 7500) * M_PI / (float)5333;
 }
 
 void Motion::Head(std::map<int, int> &dest, float target_theta, float &camera_theta){
     dest[0] =((Rad2Servo(-camera_theta) - target_theta * 50)) ;
-    if(dest[0] > 10000)
-	dest[0] = 10000;
-    if(dest[0] < 5000)
-	dest[0] = 5000;
+    if(dest[0] > 11000)
+	dest[0] = 11000;
+    if(dest[0] < 4000)
+	dest[0] = 4000;
     camera_theta = -Servo2Rad(dest[0]);
 }
 
