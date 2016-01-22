@@ -37,12 +37,12 @@ int main(int argc, char *argv[])
     Motion motion(khr_port);
     std::map<int, int> dest;
     motion.Init(dest);
-    motion.Move(dest);
+    motion.Move(dest, 10);
     sleep(1);
 
     motion.Clear(dest);
     motion.Grub(dest);
-    motion.Move(dest);
+    motion.Move(dest, 10);
     sleep(1);
 
     std::map<int, Position> marker_map;
@@ -59,10 +59,6 @@ int main(int argc, char *argv[])
 #endif
 
 		float target_theta = atan2(-marker_map[20].x, marker_map[20].y) - camera_theta;
-		std::cout << atan2(-marker_map[20].x, marker_map[20].y) << "\t";
-		std::cout << camera_theta << "\t";
-		std::cout << target_theta << "\t";
-		std::cout << atan2(-marker_map[21].x, marker_map[21].y) << "\n";
 		motion.Clear(dest);
 
 		switch(keyInput.GetKey())
@@ -99,11 +95,11 @@ int main(int argc, char *argv[])
 		    //motion.Stab(dest, theta, omega);
 		    break;
 		}
-
-		if((target_theta > 0.1 || target_theta < -0.1) && odometry.isSet())
+		
+		if((target_theta > 0.15 || target_theta < -0.15) && odometry.isSet())
 		    motion.Head(dest, target_theta, camera_theta);
-		motion.Move(dest, 10);
-	
+		motion.Move(dest, 20);
+
 #ifdef DEBUG_PRINT
 		std::cout << std::endl;
 #endif

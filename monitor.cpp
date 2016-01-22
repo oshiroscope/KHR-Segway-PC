@@ -48,7 +48,11 @@ void Monitor::display(){
 	glColor4f(0.4,0.8,1.0,0.0);
 	render_string(pos_x + 0.05, pos_y, "id =" + to_string(marker.first)); 
 	glColor4f(0.8,0.8,0.2,0.0);
-	render_vector(0.0, -1.0, 0.0, 0.2, 1.5);
+	render_vector(0.0, -1.0, *g_camera_theta, 0.2, 3);
+	glColor4f(1.0,1.0,1.0,0.0);	
+	render_vector(0.0, -1.0, *g_camera_theta + 0.25, 2, 1.5);
+	glColor4f(1.0,1.0,1.0,0.0);	
+	render_vector(0.0, -1.0, *g_camera_theta - 0.25, 2, 1.5);
     }
 
 

@@ -23,11 +23,14 @@ public:
     void Stab(std::map<int, int> &dest, float theta, float omega);
     void Stab(std::map<int, int> &dest, float theta, float v, float x);
     void Stab(std::map<int, int> &dest, float theta, float omega, float v, float x);
+    void SetHeadOffset(int offset);
     void Head(std::map<int, int> &dest, float target_theta, float &camera_theta);
     void Clear(std::map<int, int> &dest);
 
 private:
     SerialPort m_khr_port;
+    int m_head_offset = 0;
+    bool m_head_changed = false;
 };
 
 
