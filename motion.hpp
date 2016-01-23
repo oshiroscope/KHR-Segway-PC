@@ -18,6 +18,7 @@ public:
     void Right(std::map<int, int> &dest, float camera_theta);
     void Forward(std::map<int, int> &dest);
     void Backward(std::map<int, int> &dest);
+    void StraightCtrl(std::map<int, int> &dest, int gain);
     void None(std::map<int, int> &dest, float camera_theta);
     void Stab(std::map<int, int> &dest, float theta);
     void Stab(std::map<int, int> &dest, float theta, float omega);
@@ -26,6 +27,7 @@ public:
     void SetHeadOffset(int offset);
     void Head(std::map<int, int> &dest, float target_theta, float &camera_theta);
     void Clear(std::map<int, int> &dest);
+    void Search(std::map<int, int> &dest, int head_input, float &camera_theta);
 
 private:
     SerialPort m_khr_port;

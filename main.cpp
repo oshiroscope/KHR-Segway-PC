@@ -111,32 +111,74 @@ int main(int argc, char *argv[])
 	    usleep(30000);	
 	}
 #else
+	    int sin_cnt = 0;
+	    int blind_cnt = 0;
+	    bool searched = false;
 	    while(1){
 		motion.Clear(dest);
-		marker_map = odometry.getMap();
-		float target_theta = atan2(-marker_map[20].x, marker_map[20].y) - camera_theta;
-		if((target_theta > 0.1 || target_theta < -0.1) && odometry.isSet())
-		    motion.Head(dest, target_theta, camera_theta);
+		
+		if(!odometry.isSet() && !searched){
+		    sin_cnt++;
+		    motion.None(dest, 0.0f);
+		    motion.Search(dest, sin(sin_cnt / 200.0f) * 2000, camera_theta);
+		    motion.Move(dest, 10);
+		}else if(!odometry.isSet()){
+		    blind_cnt++;
+		    if(blind_cnt > 300){
+			blind_cnt = 0;
+			searched = false;
+		    }
+		}else{
+		    sin_cnt = 0;
+		    searched = true;
+		    marker_map = odometry.getMap();
 
-		//目標地点の算出
-		float l = 0.5f;
-		goal = {
-		    marker_map[20].x + l * sin(-marker_map[20].theta),
-		    marker_map[20].y - l * cos(-marker_map[20].theta),
-		    0.0f
-		};
+		    float target_theta = atan2(-marker_map[20].x, marker_map[20].y) - camera_theta;
+		    if((target_theta > 0.1 || target_theta < -0.1) && odometry.isSet())
+			motion.Head(dest, target_theta, camera_theta);
 
-		// if(marker_map[20].theta > 0.7){
-		//     motion.SetHeadOffset(-1500);
-		//     motion.Right(dest, camera_theta);
-		// }else if(marker_map[20].theta < -0.7){
-		//     motion.SetHeadOffset(1500);
-		//     motion.Left(dest, camera_theta);
-		// }else{
-		//     motion.None(dest, camera_theta);
-		// }
+		    //目標地点の算出
+		    float l = 0.5f;
+		    goal = {
+			marker_map[20].x + l * sin(-marker_map[20].theta),
+			marker_map[20].y - l * cos(-marker_map[20].theta),
+			0.0f
+		    };
+		
+		    float goal_theta = atan2(-goal.x, goal.y);// - camera_theta;
+		    std::cout << goal_theta << std::endl;
+		    
+		    float distance = sqrt(goal.x * goal.x + goal.y * goal.y) * (goal.y >= 0 ? 1:-1);		
+		    if(abs(distance) < 0.2){
+			motion.SetHeadOffset(0);
+			motion.None(dest, camera_theta);
+		    }else if(goal_theta > 0.3){
+			motion.SetHeadOffset(1500);
+			motion.Left(dest, camera_theta);
+		    }else if(goal_theta < -0.3){
+			motion.SetHeadOffset(-1500);
+			motion.Right(dest, camera_theta);
+		    }else{
+			motion.SetHeadOffset(0);
+			motion.None(dest, camera_theta);
+			int gain = distance * 100;
+			if(gain > 80) gain = 80;
+			if(gain < -80) gain = -80;
+			motion.StraightCtrl(dest, gain); 
+		    }
+		
+		    // if(marker_map[20].theta > 0.7){
+		    //     motion.SetHeadOffset(-1500);
+		    //     motion.Right(dest, camera_theta);
+		    // }else if(marker_map[20].theta < -0.7){
+		    //     motion.SetHeadOffset(1500);
+		    //     motion.Left(dest, camera_theta);
+		    // }else{
+		    //     motion.None(dest, camera_theta);
+		    // }
 
-		motion.Move(dest, 20);
+		    motion.Move(dest, 40);
+		}
 		usleep(20000);	
 	    }
 #endif

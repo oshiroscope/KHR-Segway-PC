@@ -34,8 +34,12 @@ void Motion::Init(std::map<int, int> &dest){
 }
 
 void Motion::Grub(std::map<int, int> &dest){
-    dest[6] = 7000; //7500;
-    dest[7] = 8000; //7500;
+    dest[2] = 8000; //7300;
+    dest[3] = 7000; //7700;
+    dest[6] = 6000; //8000;
+    dest[7] = 9000; //7000;
+    dest[8] = 6000; //4700;
+    dest[9] = 9000; //10300;
 }
 
 void Motion::Left(std::map<int, int> &dest, float camera_theta){
@@ -80,6 +84,11 @@ void Motion::Right(std::map <int, int> &dest, float camera_theta){
     dest[2] = 7300 - 200;
     dest[6] = 7500 - 600;
     dest[8] = 4700 - 200;*/
+}
+
+void Motion::StraightCtrl(std::map<int, int> &dest, int gain){
+    dest[18] = 7500 - gain;
+    dest[19] = 7500 + gain;
 }
 
 void Motion::Forward(std::map<int, int> &dest){
@@ -190,6 +199,11 @@ void Motion::Head(std::map<int, int> &dest, float target_theta, float &camera_th
 	dest[0] = 11000;
     if(dest[0] < 4000)
 	dest[0] = 4000;
+}
+
+void Motion::Search(std::map<int, int> &dest, int head_input, float &camera_theta){
+    dest[0] = head_input + 7500;
+    camera_theta = -Servo2Rad(dest[0]);
 }
 
 void Motion::Clear(std::map <int, int> &dest){
