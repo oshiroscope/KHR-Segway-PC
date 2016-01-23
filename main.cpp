@@ -146,10 +146,11 @@ int main(int argc, char *argv[])
 		    };
 		
 		    float goal_theta = atan2(-goal.x, goal.y);// - camera_theta;
-		    std::cout << goal_theta << std::endl;
+
 		    
-		    float distance = sqrt(goal.x * goal.x + goal.y * goal.y) * (goal.y >= 0 ? 1:-1);		
-		    if(abs(distance) < 0.2){
+		    float distance = sqrt(goal.x * goal.x + goal.y * goal.y) * (goal.y >= 0 ? 1:-1);
+		    std::cout << distance << "\t";
+		    if(abs(distance) < 0.1){
 			motion.SetHeadOffset(0);
 			motion.None(dest, camera_theta);
 		    }else if(goal_theta > 0.3){
@@ -161,7 +162,8 @@ int main(int argc, char *argv[])
 		    }else{
 			motion.SetHeadOffset(0);
 			motion.None(dest, camera_theta);
-			int gain = distance * 100;
+			int gain = distance * 300;
+			std::cout << gain << "\n";
 			if(gain > 80) gain = 80;
 			if(gain < -80) gain = -80;
 			motion.StraightCtrl(dest, gain); 
