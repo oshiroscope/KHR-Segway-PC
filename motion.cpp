@@ -38,10 +38,15 @@ void Motion::Grub(std::map<int, int> &dest){
     dest[7] = 8000; //7500;
 }
 
-void Motion::Left(std::map<int, int> &dest){
-    m_head_changed = true;
+void Motion::Left(std::map<int, int> &dest, float camera_theta){
+    if(!m_head_changed){
+	//dest[0] = 9000;
+	dest[0] = Rad2Servo(-camera_theta) + m_head_offset;
+	m_head_changed = true;
+    }
+
     //SetHeadOffset(1500);
-    //dest[0] = 9000;
+
     dest[1] = 7500 - 1500;
 
     //dest[7] = 9000;
@@ -56,10 +61,16 @@ void Motion::Left(std::map<int, int> &dest){
     dest[8] = 4700 + 400;*/
 }
 
-void Motion::Right(std::map <int, int> &dest){
-    m_head_changed = true;
+void Motion::Right(std::map <int, int> &dest, float camera_theta){
+    if(!m_head_changed){
+	//dest[0] = 6000;
+	dest[0] = Rad2Servo(-camera_theta) + m_head_offset;
+	m_head_changed = true;
+    }
+
+    
     //SetHeadOffset(-1500);
-    //dest[0] = 6000;
+
     dest[1] = 7500 + 1500;
 
     /*dest[3] = 7700 - 200;
@@ -97,10 +108,11 @@ void Motion::Backward(std::map<int, int> &dest){
     // dest[19] = 7500 - 10;
 }
 
-void Motion::None(std::map<int, int> &dest){
+void Motion::None(std::map<int, int> &dest, float camera_theta){
     SetHeadOffset(0);
     if(m_head_changed){
-	dest[0] = 7500;
+	dest[0] = Rad2Servo(-camera_theta) + m_head_offset;
+
 	m_head_changed = false;
     }
     dest[1] = 7500;
@@ -152,10 +164,10 @@ void Motion::Stab(std::map<int, int> &dest, float theta, float omega, float v, f
 }
 
 //
-int Rad2Servo(float angle){
+int Motion::Rad2Servo(float angle){
     return 7500 +  angle * 5333 / M_PI; // 135 deg = 4000 unit / 3.141592rad = 5333
 }
-float Servo2Rad(int angle){
+float Motion::Servo2Rad(int angle){
     return (angle - 7500) * M_PI / (float)5333;
 }
 
@@ -164,12 +176,13 @@ void Motion::SetHeadOffset(int offset){
 }
 
 void Motion::Head(std::map<int, int> &dest, float target_theta, float &camera_theta){
-    if(m_head_changed)
-	return ;
-    dest[0] =((Rad2Servo(-camera_theta) - target_theta * 30)) + m_head_offset;
-    std::cout << Rad2Servo(-camera_theta) << "\t"
+    dest[0] = ((Rad2Servo(-camera_theta) - target_theta * 30)) + m_head_offset;
+    
+    std::cout << m_head_offset << "\t"
+	      << dest[0] << "\t"
+	      << Rad2Servo(-camera_theta) << "\t"
 	      << camera_theta << "\t"
-	      << target_theta * 50 << "\n";
+	      << target_theta << "\n";
     
     camera_theta = -Servo2Rad(dest[0] - m_head_offset);
 

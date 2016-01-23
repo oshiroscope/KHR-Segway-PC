@@ -17,6 +17,7 @@
 #include "monitor.hpp"
 
 //#define DEBUG_PRINT
+#define KEY_CONTROL	    
 
 char key;
 
@@ -49,62 +50,92 @@ int main(int argc, char *argv[])
 
     std::thread control_th = std::thread(
 	[&]{
+#ifdef KEY_CONTROL	    
+	    while(1){
+	    marker_map = odometry.getMap();
+#ifdef DEBUG_PRINT
+	    std::cout << marker_map[20].x << "\t"
+		      << marker_map[20].y << "\t"
+		      << marker_map[20].theta << "\t"
+		      << atan2(-marker_map[20].x, marker_map[20].y) << "\t";
+#endif
+
+	    float target_theta = atan2(-marker_map[20].x, marker_map[20].y) - camera_theta;
+	    motion.Clear(dest);
+
+	    switch(keyInput.GetKey())
+	    {
+	case 'w':
+#ifdef DEBUG_PRINT
+	    std::cout << "forward";
+#endif
+	    motion.Forward(dest);
+	    break;
+	case 'a':
+#ifdef DEBUG_PRINT
+	    std::cout << "left";
+#endif
+	    motion.SetHeadOffset(1500);
+	    motion.Left(dest, camera_theta);
+	    break;
+	case 's':
+#ifdef DEBUG_PRINT
+	    std::cout << "backward";
+#endif
+	    motion.Backward(dest);
+	    break;
+
+	case 'd':
+#ifdef DEBUG_PRINT
+	    std::cout << "right";
+#endif
+	    motion.SetHeadOffset(-1500);
+	    motion.Right(dest, camera_theta);
+	    break;
+	default :
+#ifdef DEBUG_PRINT
+	    std::cout << "none";
+#endif
+	    motion.None(dest, camera_theta);
+	    //motion.Stab(dest, theta, omega);
+	    break;
+	}
+		
+	    if((target_theta > 0.1 || target_theta < -0.1) && odometry.isSet())
+		motion.Head(dest, target_theta, camera_theta);
+	    motion.Move(dest, 20);
+
+#ifdef DEBUG_PRINT
+	    std::cout << std::endl;
+#endif
+	    usleep(30000);	
+	}
+#else
 	    while(1){
 		marker_map = odometry.getMap();
-#ifdef DEBUG_PRINT
-		std::cout << marker_map[20].x << "\t"
-			  << marker_map[20].y << "\t"
-			  << marker_map[20].theta << "\t"
-			  << atan2(-marker_map[20].x, marker_map[20].y) << "\t";
-#endif
 
 		float target_theta = atan2(-marker_map[20].x, marker_map[20].y) - camera_theta;
 		motion.Clear(dest);
 
-		switch(keyInput.GetKey())
-		{
-		case 'w':
-#ifdef DEBUG_PRINT
-		    std::cout << "forward";
-#endif
-		    motion.Forward(dest);
-		    break;
-		case 'a':
-#ifdef DEBUG_PRINT
-		    std::cout << "left";
-#endif
-		    motion.Left(dest);
-		    break;
-		case 's':
-#ifdef DEBUG_PRINT
-		    std::cout << "backward";
-#endif
-		    motion.Backward(dest);
-		    break;
-		case 'd':
-#ifdef DEBUG_PRINT
-		    std::cout << "right";
-#endif
-		    motion.Right(dest);
-		    break;
-		default :
-#ifdef DEBUG_PRINT
-		    std::cout << "none";
-#endif
-		    motion.None(dest);
-		    //motion.Stab(dest, theta, omega);
-		    break;
+		std::cout << marker_map[20].theta << "\n";
+		if(marker_map[20].theta > 0.7){
+		    motion.SetHeadOffset(-1500);
+		    motion.Right(dest, camera_theta);
+		}else if(marker_map[20].theta < -0.7){
+		    motion.SetHeadOffset(1500);
+		    motion.Left(dest, camera_theta);
+		}else{
+		    motion.None(dest, camera_theta);
 		}
-		
-		if((target_theta > 0.15 || target_theta < -0.15) && odometry.isSet())
+
+		if((target_theta > 0.1 || target_theta < -0.1) && odometry.isSet())
 		    motion.Head(dest, target_theta, camera_theta);
+
 		motion.Move(dest, 20);
 
-#ifdef DEBUG_PRINT
-		std::cout << std::endl;
-#endif
 		usleep(30000);	
 	    }
+#endif
 	}
 	);
 
