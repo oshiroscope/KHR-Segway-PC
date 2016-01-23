@@ -17,7 +17,7 @@
 #include "monitor.hpp"
 
 //#define DEBUG_PRINT
-#define KEY_CONTROL	    
+//#define KEY_CONTROL	    
 
 char key;
 
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     sleep(1);
 
     std::map<int, Position> marker_map;
-
+    Position goal;
     std::thread control_th = std::thread(
 	[&]{
 #ifdef KEY_CONTROL	    
@@ -112,34 +112,38 @@ int main(int argc, char *argv[])
 	}
 #else
 	    while(1){
-		marker_map = odometry.getMap();
-
-		float target_theta = atan2(-marker_map[20].x, marker_map[20].y) - camera_theta;
 		motion.Clear(dest);
-
-		std::cout << marker_map[20].theta << "\n";
-		if(marker_map[20].theta > 0.7){
-		    motion.SetHeadOffset(-1500);
-		    motion.Right(dest, camera_theta);
-		}else if(marker_map[20].theta < -0.7){
-		    motion.SetHeadOffset(1500);
-		    motion.Left(dest, camera_theta);
-		}else{
-		    motion.None(dest, camera_theta);
-		}
-
+		marker_map = odometry.getMap();
+		float target_theta = atan2(-marker_map[20].x, marker_map[20].y) - camera_theta;
 		if((target_theta > 0.1 || target_theta < -0.1) && odometry.isSet())
 		    motion.Head(dest, target_theta, camera_theta);
 
-		motion.Move(dest, 20);
+		//目標地点の算出
+		float l = 0.5f;
+		goal = {
+		    marker_map[20].x + l * sin(-marker_map[20].theta),
+		    marker_map[20].y - l * cos(-marker_map[20].theta),
+		    0.0f
+		};
 
-		usleep(30000);	
+		// if(marker_map[20].theta > 0.7){
+		//     motion.SetHeadOffset(-1500);
+		//     motion.Right(dest, camera_theta);
+		// }else if(marker_map[20].theta < -0.7){
+		//     motion.SetHeadOffset(1500);
+		//     motion.Left(dest, camera_theta);
+		// }else{
+		//     motion.None(dest, camera_theta);
+		// }
+
+		motion.Move(dest, 20);
+		usleep(20000);	
 	    }
 #endif
 	}
 	);
 
-    Monitor monitor(&argc, argv, &marker_map, &camera_theta);
+    Monitor monitor(&argc, argv, &marker_map, &camera_theta, &goal);
 
     monitor.Start();
     

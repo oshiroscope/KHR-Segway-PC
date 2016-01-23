@@ -6,7 +6,7 @@
 
 class Monitor{
 public:
-    Monitor(int *argc, char *argv[], std::map<int, Position> *marker_map, float *camera_theta);
+    Monitor(int *argc, char *argv[], std::map<int, Position> *marker_map, float *camera_theta, Position *goal);
     ~Monitor();
 
     void Start();
