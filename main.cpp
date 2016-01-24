@@ -17,7 +17,7 @@
 #include "monitor.hpp"
 
 //#define DEBUG_PRINT
-//#define KEY_CONTROL	    
+#define KEY_CONTROL	    
 
 char key;
 
@@ -114,6 +114,8 @@ int main(int argc, char *argv[])
 	    int sin_cnt = 0;
 	    int blind_cnt = 0;
 	    bool searched = false;
+
+	    float distance_sum = 0.0f;
 	    while(1){
 		motion.Clear(dest);
 		
@@ -123,6 +125,8 @@ int main(int argc, char *argv[])
 		    motion.Search(dest, sin(sin_cnt / 200.0f) * 2000, camera_theta);
 		    motion.Move(dest, 10);
 		}else if(!odometry.isSet()){
+		    motion.None(dest, camera_theta);
+		    motion.Move(dest, 40);
 		    blind_cnt++;
 		    if(blind_cnt > 300){
 			blind_cnt = 0;
@@ -146,26 +150,37 @@ int main(int argc, char *argv[])
 		    };
 		
 		    float goal_theta = atan2(-goal.x, goal.y);// - camera_theta;
-
-		    
 		    float distance = sqrt(goal.x * goal.x + goal.y * goal.y) * (goal.y >= 0 ? 1:-1);
+		    distance_sum += distance;
+
 		    std::cout << distance << "\t";
 		    if(abs(distance) < 0.1){
 			motion.SetHeadOffset(0);
 			motion.None(dest, camera_theta);
+			distance_sum = 0.0f;
 		    }else if(goal_theta > 0.3){
 			motion.SetHeadOffset(1500);
 			motion.Left(dest, camera_theta);
+			int gain = distance * 200;
+			std::cout <<distance << "\t" << distance_sum << "\t" << gain << "\n";
+			if(gain > 80) gain = 80;
+			if(gain < -80) gain = -80;
+			motion.StraightCtrl(dest, gain); 
 		    }else if(goal_theta < -0.3){
 			motion.SetHeadOffset(-1500);
 			motion.Right(dest, camera_theta);
+			int gain = distance * 200;
+			std::cout <<distance << "\t" << distance_sum << "\t" << gain << "\n";
+			if(gain > 80) gain = 80;
+			if(gain < -80) gain = -80;
+			motion.StraightCtrl(dest, gain); 
 		    }else{
 			motion.SetHeadOffset(0);
 			motion.None(dest, camera_theta);
-			int gain = distance * 300;
-			std::cout << gain << "\n";
-			if(gain > 80) gain = 80;
-			if(gain < -80) gain = -80;
+			int gain = distance * 200 + distance_sum * 1.0;
+			std::cout <<distance << "\t" << distance_sum << "\t" << gain << "\n";
+			if(gain > 200) gain = 200;
+			if(gain < -200) gain = -200;
 			motion.StraightCtrl(dest, gain); 
 		    }
 		
@@ -190,7 +205,7 @@ int main(int argc, char *argv[])
     Monitor monitor(&argc, argv, &marker_map, &camera_theta, &goal);
 
     monitor.Start();
-    
+    while(1){}
     control_th.join();
 }
 
