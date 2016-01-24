@@ -17,7 +17,7 @@
 #include "monitor.hpp"
 
 //#define DEBUG_PRINT
-#define KEY_CONTROL	    
+//#define KEY_CONTROL	    
 
 char key;
 
@@ -125,9 +125,11 @@ int main(int argc, char *argv[])
 		    motion.Search(dest, sin(sin_cnt / 200.0f) * 2000, camera_theta);
 		    motion.Move(dest, 10);
 		}else if(!odometry.isSet()){
-		    motion.None(dest, camera_theta);
-		    motion.Move(dest, 40);
 		    blind_cnt++;
+		    if(blind_cnt > 40){
+			motion.None(dest, camera_theta);
+			motion.Move(dest, 40);
+		    }
 		    if(blind_cnt > 300){
 			blind_cnt = 0;
 			searched = false;
@@ -177,7 +179,7 @@ int main(int argc, char *argv[])
 		    }else{
 			motion.SetHeadOffset(0);
 			motion.None(dest, camera_theta);
-			int gain = distance * 200 + distance_sum * 1.0;
+			int gain = distance * 100 + distance_sum * 0.5;
 			std::cout <<distance << "\t" << distance_sum << "\t" << gain << "\n";
 			if(gain > 200) gain = 200;
 			if(gain < -200) gain = -200;
