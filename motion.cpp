@@ -226,11 +226,11 @@ void Motion::SetHeadOffset(int offset){
 void Motion::Head(std::map<int, int> &dest, float target_theta, float &camera_theta){
     dest[0] = ((Rad2Servo(-camera_theta) - target_theta * 30)) + m_head_offset;
     
-    std::cout << m_head_offset << "\t"
+    /*std::cout << m_head_offset << "\t"
 	      << dest[0] << "\t"
 	      << Rad2Servo(-camera_theta) << "\t"
 	      << camera_theta << "\t"
-	      << target_theta << "\n";
+	      << target_theta << "\n";*/
     
     camera_theta = -Servo2Rad(dest[0] - m_head_offset);
 

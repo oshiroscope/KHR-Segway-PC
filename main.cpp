@@ -38,12 +38,12 @@ int main(int argc, char *argv[])
     Motion motion(khr_port);
     std::map<int, int> dest;
     motion.Init(dest);
-    motion.Move(dest, 10);
+    motion.Move(dest, 40);
     sleep(1);
 
     motion.Clear(dest);
     motion.Grub(dest);
-    motion.Move(dest, 10);
+    motion.Move(dest, 40);
     sleep(1);
 
     std::map<int, Position> marker_map;
@@ -116,6 +116,7 @@ int main(int argc, char *argv[])
 	    bool searched = false;
 
 	    float distance_sum = 0.0f;
+	    float old_distance = 0.0f;
 	    while(1){
 		motion.Clear(dest);
 		
@@ -126,9 +127,10 @@ int main(int argc, char *argv[])
 		    motion.Move(dest, 10);
 		}else if(!odometry.isSet()){
 		    blind_cnt++;
-		    if(blind_cnt > 40){
+		    if(blind_cnt > 20){
 			motion.None(dest, camera_theta);
 			motion.Move(dest, 40);
+			old_distance = 0.0f;
 		    }
 		    if(blind_cnt > 300){
 			blind_cnt = 0;
@@ -155,7 +157,15 @@ int main(int argc, char *argv[])
 		    float distance = sqrt(goal.x * goal.x + goal.y * goal.y) * (goal.y >= 0 ? 1:-1);
 		    distance_sum += distance;
 
-		    std::cout << distance << "\t";
+		    float velocity = 0.0f;
+		    if(old_distance != 0.0f){
+			velocity = distance - old_distance;
+			
+		    }
+		    old_distance = distance;
+		    
+		    int gain = 0;
+		    
 		    if(abs(distance) < 0.1){
 			motion.SetHeadOffset(0);
 			motion.None(dest, camera_theta);
@@ -163,29 +173,27 @@ int main(int argc, char *argv[])
 		    }else if(goal_theta > 0.3){
 			motion.SetHeadOffset(1500);
 			motion.Left(dest, camera_theta);
-			int gain = distance * 200;
-			std::cout <<distance << "\t" << distance_sum << "\t" << gain << "\n";
+			gain = distance * 60 + distance_sum * 0.5 - velocity * 10;
 			if(gain > 80) gain = 80;
 			if(gain < -80) gain = -80;
 			motion.StraightCtrl(dest, gain); 
 		    }else if(goal_theta < -0.3){
 			motion.SetHeadOffset(-1500);
 			motion.Right(dest, camera_theta);
-			int gain = distance * 200;
-			std::cout <<distance << "\t" << distance_sum << "\t" << gain << "\n";
+			gain = distance * 60 + distance_sum * 0.5 - velocity * 10;
 			if(gain > 80) gain = 80;
 			if(gain < -80) gain = -80;
 			motion.StraightCtrl(dest, gain); 
 		    }else{
 			motion.SetHeadOffset(0);
 			motion.None(dest, camera_theta);
-			int gain = distance * 100 + distance_sum * 0.5;
-			std::cout <<distance << "\t" << distance_sum << "\t" << gain << "\n";
+			gain = distance * 30 + distance_sum * 0.3 - velocity * 10;
+
 			if(gain > 200) gain = 200;
 			if(gain < -200) gain = -200;
 			motion.StraightCtrl(dest, gain); 
 		    }
-		
+		    std::cout <<distance << "\t" << distance_sum << "\t" << velocity << "\t" <<  gain << "\n";		
 		    // if(marker_map[20].theta > 0.7){
 		    //     motion.SetHeadOffset(-1500);
 		    //     motion.Right(dest, camera_theta);
