@@ -19,6 +19,11 @@
 //#define DEBUG_PRINT
 //#define KEY_CONTROL	    
 
+#define GAIN_MAX 200
+#define K_DISTANCE 30.0f
+#define K_DISTANCE_SUM 0.5f
+#define K_VELOCITY 50.0f
+
 char key;
 
 std::vector<char> key_buf;
@@ -134,6 +139,7 @@ int main(int argc, char *argv[])
 		    }
 		    if(blind_cnt > 300){
 			blind_cnt = 0;
+			distance_sum = 0.0f;
 			searched = false;
 		    }
 		}else{
@@ -168,29 +174,22 @@ int main(int argc, char *argv[])
 		    
 		    if(abs(distance) < 0.1){
 			motion.SetHeadOffset(0);
-			motion.None(dest, camera_theta);
+			//motion.None(dest, camera_theta);
 			distance_sum = 0.0f;
-		    }else if(goal_theta > 0.3){
-			motion.SetHeadOffset(1500);
-			motion.Left(dest, camera_theta);
-			gain = distance * 60 + distance_sum * 0.5 - velocity * 10;
-			if(gain > 80) gain = 80;
-			if(gain < -80) gain = -80;
-			motion.StraightCtrl(dest, gain); 
-		    }else if(goal_theta < -0.3){
-			motion.SetHeadOffset(-1500);
-			motion.Right(dest, camera_theta);
-			gain = distance * 60 + distance_sum * 0.5 - velocity * 10;
-			if(gain > 80) gain = 80;
-			if(gain < -80) gain = -80;
-			motion.StraightCtrl(dest, gain); 
-		    }else{
-			motion.SetHeadOffset(0);
-			motion.None(dest, camera_theta);
-			gain = distance * 30 + distance_sum * 0.3 - velocity * 10;
-
-			if(gain > 200) gain = 200;
-			if(gain < -200) gain = -200;
+		    }else{ 
+			if(goal_theta > 0.3){
+			    motion.SetHeadOffset(1500);
+			    motion.Left(dest, camera_theta);
+			}else if(goal_theta < -0.3){
+			    motion.SetHeadOffset(-1500);
+			    motion.Right(dest, camera_theta);
+			}else{
+			    motion.SetHeadOffset(0);
+			    motion.None(dest, camera_theta);
+			}
+			gain = distance * K_DISTANCE + distance_sum * K_DISTANCE_SUM - velocity * K_VELOCITY;
+			if(gain > GAIN_MAX) gain = GAIN_MAX;
+			if(gain < -GAIN_MAX) gain = -GAIN_MAX;
 			motion.StraightCtrl(dest, gain); 
 		    }
 		    std::cout <<distance << "\t" << distance_sum << "\t" << velocity << "\t" <<  gain << "\n";		
@@ -204,7 +203,7 @@ int main(int argc, char *argv[])
 		    //     motion.None(dest, camera_theta);
 		    // }
 
-		    motion.Move(dest, 40);
+		    motion.Move(dest, 30);
 		}
 		usleep(20000);	
 	    }

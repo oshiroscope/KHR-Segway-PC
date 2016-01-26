@@ -53,6 +53,8 @@ const int INIT_6 = 7500;
 const int INIT_7 = 7500;
 const int INIT_8 = 7000;
 const int INIT_9 = 8000;
+const int INIT_18 = 7560;
+const int INIT_19 = 7440;
 
 const int GRUB_4 = 7200;
 const int GRUB_5 = 7800;
@@ -69,6 +71,8 @@ void Motion::Init(std::map<int, int> &dest){
     dest[7] = INIT_7;// 7500; //7000;
     dest[8] = INIT_8;// 6000; //6000; //4700;
     dest[9] = INIT_9;// 9000; //9000; //10300;
+    dest[18] = INIT_18;
+    dest[19] = INIT_19;
 }
 
 void Motion::Grub(std::map<int, int> &dest){
@@ -80,6 +84,8 @@ void Motion::Grub(std::map<int, int> &dest){
     dest[7] = GRUB_7; //9000; //7000;
     dest[8] = GRUB_8; //5000; //6000; //4700;
     dest[9] = GRUB_9; //10000; //9000; //10300;
+    dest[18] = INIT_18;
+    dest[19] = INIT_19;
 }
 
 void Motion::Left(std::map<int, int> &dest, float camera_theta){
@@ -127,13 +133,13 @@ void Motion::Right(std::map <int, int> &dest, float camera_theta){
 }
 
 void Motion::StraightCtrl(std::map<int, int> &dest, int gain){
-    dest[18] = 7500 - gain;
-    dest[19] = 7500 + gain;
+    dest[18] = INIT_18 - gain;
+    dest[19] = INIT_19 + gain;
 }
 
 void Motion::Forward(std::map<int, int> &dest){
-    dest[18] = 7500 - F_OFFSET;
-    dest[19] = 7500 + F_OFFSET;
+    dest[18] = INIT_18 - F_OFFSET;
+    dest[19] = INIT_19 + F_OFFSET;
     // dest[2] = 7500 + 800;
     // dest[8] = 4700 + 1200;
 
@@ -145,8 +151,8 @@ void Motion::Forward(std::map<int, int> &dest){
 }
 
 void Motion::Backward(std::map<int, int> &dest){
-    dest[18] = 7500 + B_OFFSET;
-    dest[19] = 7500 - B_OFFSET;
+    dest[18] = INIT_18 + B_OFFSET;
+    dest[19] = INIT_19 - B_OFFSET;
     // dest[2] = 7500 - 1400;
     // dest[8] = 4700 - 1200;
 
@@ -178,8 +184,8 @@ void Motion::None(std::map<int, int> &dest, float camera_theta){
     dest[20] = 7500;
     dest[21] = 7500;
 
-    dest[18] = 7500;
-    dest[19] = 7500;
+    dest[18] = INIT_18;
+    dest[19] = INIT_19;
 }
 
 void Motion::Stab(std::map<int, int> &dest, float theta){
