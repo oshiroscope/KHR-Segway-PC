@@ -13,6 +13,10 @@ public:
     void Move(std::map<int, int> &dest);
     void Move(std::map<int, int> &dest, int frame);
     void Init(std::map<int, int> &dest);
+    void Push0(std::map<int, int> &dest);
+    void Push1(std::map<int, int> &dest);
+    void Push2(std::map<int, int> &dest);
+    void Push3(std::map<int, int> &dest);
     void Grub(std::map<int, int> &dest);
     void Left(std::map<int, int> &dest, float camera_theta);
     void Right(std::map<int, int> &dest, float camera_theta);

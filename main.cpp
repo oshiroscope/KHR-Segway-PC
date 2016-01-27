@@ -18,6 +18,7 @@
 
 //#define DEBUG_PRINT
 //#define KEY_CONTROL	    
+#define WALK_MOTION
 
 #define GAIN_MAX 200
 #define K_DISTANCE 30.0f
@@ -30,6 +31,14 @@ std::vector<char> key_buf;
 
 int main(int argc, char *argv[])
 {
+    SerialPort khr_port(KHR_SERIAL_PORT);
+
+#ifdef WALK_MOTION
+    auto cmd = CommandGen::PlayMotion({0x80, 0x9B, 0x01});
+    khr_port.Write(&cmd[0], cmd.size());
+    sleep(10);
+#endif
+
     float camera_theta = 0;
 
     Odometry odometry(&camera_theta);
@@ -38,15 +47,24 @@ int main(int argc, char *argv[])
     KeyInput keyInput;
     keyInput.Start();
 
-    SerialPort khr_port(KHR_SERIAL_PORT);
-
-    /*auto cmd = CommandGen::PlayMotion({0x80, 0x4B, 0x01});
-    khr_port.Write(&cmd[0], cmd.size());
-
-    while(1){}*/
     Motion motion(khr_port);
     std::map<int, int> dest;
     motion.Init(dest);
+    motion.Move(dest, 40);
+    sleep(1);
+
+    motion.Clear(dest);
+    motion.Push0(dest);
+    motion.Move(dest, 40);
+    sleep(1);
+
+    motion.Clear(dest);
+    motion.Push1(dest);
+    motion.Move(dest, 40);
+    sleep(1);
+
+    motion.Clear(dest);
+    motion.Push2(dest);
     motion.Move(dest, 40);
     sleep(1);
 

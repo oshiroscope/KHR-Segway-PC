@@ -53,6 +53,10 @@ const int INIT_6 = 7500;
 const int INIT_7 = 7500;
 const int INIT_8 = 7000;
 const int INIT_9 = 8000;
+const int INIT_14 = 7500;
+const int INIT_15 = 7500;
+const int INIT_16 = 7500;
+const int INIT_17 = 7500;
 const int INIT_18 = 7560;
 const int INIT_19 = 7440;
 
@@ -71,8 +75,37 @@ void Motion::Init(std::map<int, int> &dest){
     dest[7] = INIT_7;// 7500; //7000;
     dest[8] = INIT_8;// 6000; //6000; //4700;
     dest[9] = INIT_9;// 9000; //9000; //10300;
+    
+    dest[14] = INIT_14;
+    dest[15] = INIT_15;
+    dest[16] = INIT_16;
+    dest[17] = INIT_17;
+    
     dest[18] = INIT_18;
     dest[19] = INIT_19;
+}
+
+void Motion::Push0(std::map<int, int> &dest){
+    dest[3] = INIT_3;
+    dest[9] = INIT_9 + 2000;
+}
+
+void Motion::Push1(std::map<int, int> &dest){
+    dest[2] = INIT_2;// 8000; //7300;
+    dest[3] = INIT_3;// 7000; //7700;
+    dest[5] = GRUB_5; //6000; //8000;
+    dest[7] = GRUB_7; //9000; //7000;
+    dest[9] = INIT_9 + 2000; //10000; //9000; //10300;
+    dest[18] = INIT_18;
+    dest[19] = INIT_19;
+}
+
+void Motion::Push2(std::map<int, int> &dest){
+    dest[9] = GRUB_9;// 9000; //9000; //10300;    
+}
+
+void Motion::Push3(std::map<int, int> &dest){
+    dest[9] = INIT_9 - 1000;// 9000; //9000; //10300;    
 }
 
 void Motion::Grub(std::map<int, int> &dest){
