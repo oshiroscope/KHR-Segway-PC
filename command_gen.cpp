@@ -51,9 +51,29 @@ std::vector<unsigned char> CommandGen::SetFree(int id)
     cmd[7] = 32767 >> 8;
     cmd[8] = 0x00;
     
-    for(int i = 0; i < size; i++)
+    for(int i = 0; i < size - 1; i++)
     {
 	cmd[8] += cmd[i];
+    }
+    return cmd;
+}
+
+std::vector<unsigned char> CommandGen::PlayMotion(std::vector<unsigned char> addr)
+{
+    int size = 7;
+    std::vector<unsigned char> cmd(size);
+
+    cmd[0] = (unsigned char)size;
+    cmd[1] = 0x0C;
+    cmd[2] = addr[0];
+    cmd[3] = addr[1];
+    cmd[4] = addr[2];
+    cmd[5] = 0x00;
+    cmd[6] = 0x00;
+    
+    for(int i = 0; i < size - 1; i++)
+    {
+	cmd[6] += cmd[i];
     }
     return cmd;
 }

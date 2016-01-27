@@ -40,6 +40,10 @@ int main(int argc, char *argv[])
 
     SerialPort khr_port(KHR_SERIAL_PORT);
 
+    /*auto cmd = CommandGen::PlayMotion({0x80, 0x4B, 0x01});
+    khr_port.Write(&cmd[0], cmd.size());
+
+    while(1){}*/
     Motion motion(khr_port);
     std::map<int, int> dest;
     motion.Init(dest);
