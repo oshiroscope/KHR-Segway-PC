@@ -18,11 +18,11 @@
 
 //#define DEBUG_PRINT
 //#define KEY_CONTROL	    
-#define WALK_MOTION
+//#define WALK_MOTION
 
 #define GAIN_MAX 200
-#define K_DISTANCE 30.0f
-#define K_DISTANCE_SUM 0.5f
+#define K_DISTANCE 50.0f
+#define K_DISTANCE_SUM 0.2f
 #define K_VELOCITY 50.0f
 
 char key;
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
     motion.Grub(dest);
     motion.Move(dest, 40);
     sleep(1);
-
+#if 1
     std::map<int, Position> marker_map;
     Position goal;
     std::thread control_th = std::thread(
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
 			marker_map[20].y - l * cos(-marker_map[20].theta),
 			0.0f
 		    };
-		
+		    std::cout << goal.x << "\t" << goal.y << "\t" << marker_map[20].theta << "\n";
 		    float goal_theta = atan2(-goal.x, goal.y);// - camera_theta;
 		    float distance = sqrt(goal.x * goal.x + goal.y * goal.y) * (goal.y >= 0 ? 1:-1);
 		    distance_sum += distance;
@@ -198,34 +198,38 @@ int main(int argc, char *argv[])
 			motion.SetHeadOffset(0);
 			//motion.None(dest, camera_theta);
 			distance_sum = 0.0f;
+			motion.Move(dest, 30);
 		    }else{ 
 			if(goal_theta > 0.3){
 			    motion.SetHeadOffset(1500);
 			    motion.Left(dest, camera_theta);
+			    gain = distance * K_DISTANCE + distance_sum * K_DISTANCE_SUM - velocity * K_VELOCITY;
+			    if(gain > GAIN_MAX) gain = GAIN_MAX;
+			    if(gain < -GAIN_MAX) gain = -GAIN_MAX;
+			    motion.StraightCtrl(dest, gain); 
+			    motion.Move(dest, 30);
 			}else if(goal_theta < -0.3){
 			    motion.SetHeadOffset(-1500);
 			    motion.Right(dest, camera_theta);
+			    gain = distance * K_DISTANCE + distance_sum * K_DISTANCE_SUM - velocity * K_VELOCITY;
+			    if(gain > GAIN_MAX) gain = GAIN_MAX;
+			    if(gain < -GAIN_MAX) gain = -GAIN_MAX;
+			    motion.StraightCtrl(dest, gain); 
+			    motion.Move(dest, 30);
 			}else{
 			    motion.SetHeadOffset(0);
 			    motion.None(dest, camera_theta);
+			    gain = distance * K_DISTANCE + distance_sum * K_DISTANCE_SUM - velocity * K_VELOCITY;
+			    if(gain > GAIN_MAX) gain = GAIN_MAX;
+			    if(gain < -GAIN_MAX) gain = -GAIN_MAX;
+			    motion.StraightCtrl(dest, gain); 
+			    motion.Move(dest, 5);
 			}
-			gain = distance * K_DISTANCE + distance_sum * K_DISTANCE_SUM - velocity * K_VELOCITY;
-			if(gain > GAIN_MAX) gain = GAIN_MAX;
-			if(gain < -GAIN_MAX) gain = -GAIN_MAX;
-			motion.StraightCtrl(dest, gain); 
 		    }
+#ifdef DEBUG_PRINT
 		    std::cout <<distance << "\t" << distance_sum << "\t" << velocity << "\t" <<  gain << "\n";		
-		    // if(marker_map[20].theta > 0.7){
-		    //     motion.SetHeadOffset(-1500);
-		    //     motion.Right(dest, camera_theta);
-		    // }else if(marker_map[20].theta < -0.7){
-		    //     motion.SetHeadOffset(1500);
-		    //     motion.Left(dest, camera_theta);
-		    // }else{
-		    //     motion.None(dest, camera_theta);
-		    // }
+#endif
 
-		    motion.Move(dest, 30);
 		}
 		usleep(20000);	
 	    }
@@ -238,5 +242,6 @@ int main(int argc, char *argv[])
     monitor.Start();
     while(1){}
     control_th.join();
+#endif
 }
 
